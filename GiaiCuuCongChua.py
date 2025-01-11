@@ -6,7 +6,7 @@ manhinh = pygame.display.set_mode((1530, 780))
 # Thay đổi tiêu đề và icon
 pygame.display.set_caption("Giải cứu công chúa")
 
-icon= pygame.image.load(r"TaiNguyen\anh\logo.jpg")
+icon= pygame.image.load(r"TaiNguyen\anh\logo.jpg").convert()
 pygame.display.set_icon(icon)
 
 a1=pygame.image.load(r"TaiNguyen\anh\dragon-a.png").convert_alpha()
@@ -36,12 +36,14 @@ nV9d=pygame.image.load(r"TaiNguyen\anh\hoangTu4.png").convert_alpha()
 dsNV9=[nV9a,nV9b, nV9c,nV9d]
 
 
-nenToaLua=pygame.image.load(r"TaiNguyen\anh\toaLua.png")
+nenToaLua=pygame.image.load(r"TaiNguyen\anh\toaLua.png").convert_alpha()
 
 vP1=pygame.image.load(r"TaiNguyen\anh\vang.png").convert_alpha()
 vP2=pygame.image.load(r"TaiNguyen\anh\mau.png").convert_alpha()
 vP3=pygame.image.load(r"TaiNguyen\anh\ngoc.png").convert_alpha()
-dsVatPham= [vP1,vP2,vP3]
+vP4=pygame.image.load(r"TaiNguyen\anh\tangToc.png").convert_alpha()
+vP5=pygame.image.load(r"TaiNguyen\anh\giamToc.png").convert_alpha()
+dsVatPham= [vP1,vP2,vP3, vP4, vP5]
 
 anhDan=pygame.image.load(r"TaiNguyen\anh\danThuCuoi.png").convert_alpha()
 
@@ -49,9 +51,11 @@ anhVuNo=pygame.image.load(r"TaiNguyen\anh\vuNo.png").convert_alpha()
 
 thoat=pygame.image.load(r"TaiNguyen\anh\dichChuyen.png").convert_alpha()
 
-mauDo=pygame.image.load(r"TaiNguyen\anh\thanhMau2.png").convert_alpha()
-mauXanh=pygame.image.load(r"TaiNguyen\anh\thanhMau1.png").convert_alpha()
+mauDo=pygame.image.load(r"TaiNguyen\anh\thanhMau2.png").convert()
+mauXanh=pygame.image.load(r"TaiNguyen\anh\thanhMau1.png").convert()
 
+tocDo=[2,3,4,5,6]
+tileVatCan=100
 
 class hoangTuVaCongChua():
     def __init__(self, toaDoX, toaDoY, tanCong):
@@ -204,6 +208,7 @@ class danDaiBan():
         if self.huong==2:
             if self.Y<self.gioiHan:
                 self.Y+=self.luongTang  
+    
 
     def getX(self):
         return self.X
@@ -264,9 +269,10 @@ class khungLong():
             self.goiLua=False
             
     def toanBoLua(self):
+        global tocDoCanh
         tam = []
         for lua in self.dsLua:
-            if lua.luaDiChuyen(3):
+            if lua.luaDiChuyen(tocDoCanh):
                 manhinh.blit(lua.nhanVat(),lua.nhanVat_hcn())
             if(lua.X<1530):
                 tam.append(lua)
@@ -284,11 +290,11 @@ class khungLong():
         dsRamDom=[-10,10]
         tiLe1=[0.45,0.55]
         tiLe2=[0.55,0.45]
+        
         if (0<self.Y<390):
             self.Y=self.Y+random.choices(dsRamDom,weights=tiLe1,k=1)[0]
         elif(390<self.Y<700):
             self.Y=self.Y+random.choices(dsRamDom,weights=tiLe2,k=1)[0] 
-            
         elif(self.Y==390):
             self.Y=self.Y+random.choices(dsRamDom,weights=tiLe2,k=1)[0] 
         else:
@@ -296,6 +302,10 @@ class khungLong():
                 self.Y+=10
             elif(self.Y>=700):
                 self.Y-=10
+        if self.X<150:
+            self.X+=20
+
+        self.duoi.setXY(self.X-120,self.Y+10)
         self.duoi.duoiRong(self.Y)
         
     def khungLongToaLua(self):
@@ -310,6 +320,9 @@ class khungLong():
 
     def xoaLua(self, a):
         self.dsLua.remove(a)
+
+    def xoaToanBoLua(self):
+        self.dsLua.clear()
 
     def getX(self):
         return self.X
@@ -331,9 +344,12 @@ class khungLong():
     
     def traVeTrangThai(self):
         self.mau=100
-        self.X=150
+        self.X=-200
         self.Y=390
         self.dsLua.clear()
+    
+    def setX(self,X):
+        self.X-=X
 
 
 class ngonLua():
@@ -366,6 +382,11 @@ class ngonLua():
 
     def getY(self):
         return self.Y
+
+    def setXY(self, X, Y):
+        self.X=X
+        self.Y=Y
+
 
 class toaLua():
     def __init__(self, toaDoX, toaDoY):
@@ -435,7 +456,7 @@ def viTri():
 
 def goiTNTanCong(tam):
     vT=viTri()
-    if 5<tam<50:
+    if 5<tam<20:
         if(vT==1):
             y=random.randint(-20,50)
         elif(vT==2):
@@ -447,7 +468,7 @@ def toanThachNhu():
     global dsThachNhu
     tam = []
     for thachNhu in dsThachNhu:
-        if thachNhu.thachNhuDiChuyen(3):
+        if thachNhu.thachNhuDiChuyen(tocDoCanh):
             manhinh.blit(thachNhu.nhanVat(),thachNhu.nhanVat_hcn())
         if (thachNhu.X>-300):
             tam.append(thachNhu)
@@ -484,7 +505,7 @@ def toanThienThach():
     global dsThienThach
     tam = []
     for thienThach in dsThienThach:
-        if thienThach.thienThachDiChuyen(3*(2**0.5),3):
+        if thienThach.thienThachDiChuyen(tocDoCanh,tocDoCanh):
             manhinh.blit(thienThach.nhanVat(),thienThach.nhanVat_hcn())
         if (thienThach.Y<1000):
             tam.append(thienThach)
@@ -495,14 +516,14 @@ class vatPham():
     def __init__(self, toaDoX, toaDoY):
         self.X=toaDoX
         self.Y=toaDoY
-        dsRamDom=[0,1,2,3] #vang, mau, ngoc
-        tiLe=[0.3, 0.2, 0.2, 0.3]
+        dsRamDom=[0,1,2,3,4,5] #vang, mau, ngoc
+        tiLe=[0.3, 0.2, 0.2, 0.1, 0.1, 0.1]
         ngauNhien=random.choices(dsRamDom,weights=tiLe,k=1)[0]
         self.loaiVP=ngauNhien
         self.trangPhuc=0
         
         # Lấy kích thước ảnh gốc
-        if ngauNhien<3:
+        if ngauNhien<5:
             self.rong, self.cao = dsVatPham[self.loaiVP].get_size()
             self.tile=1 
            
@@ -526,7 +547,7 @@ class vatPham():
         return True
 
     def getLoaiVP(self):
-        if self.loaiVP>2:
+        if self.loaiVP>4:
             return False
     
     def getLoaiVP1(self):
@@ -538,7 +559,7 @@ class vatPham():
 dsVatP=[]
 
 def goiVatPham(tam):
-    if 5<tam<20:
+    if 5<tam<30:
         x=1540
         y=random.randint(10,770)
         vP=vatPham(x,y)
@@ -549,7 +570,7 @@ def toanVatPham():
     global dsVatP
     tam = []
     for vP in dsVatP:
-        if vP.vatPhamDiChuyen(3):
+        if vP.vatPhamDiChuyen(tocDoCanh):
             manhinh.blit(vP.nhanVat(),vP.nhanVat_hcn())
         if (vP.X>-300):
             tam.append(vP)
@@ -598,7 +619,7 @@ class canhCuaThoat():
         return self.nv_hcn  
 
     def canhCuaDiChuyen(self):
-        self.X-=3
+        self.X-=tocDoCanh
 
     def getX(self):
         return self.X>-300
@@ -663,6 +684,13 @@ def kiemTraVaCham(rect1, rect2):
 def phatAmThanh(amThanh):
     amThanh.play()
 
+def thayDoiTocDo():
+    global tocDoCanh
+    global tileVatCan
+    tocDoCanh=int(tocDoCanh+1)
+    print(tocDoCanh)
+    tileVatCan-=10
+
 
 
 demKhungHinh=0
@@ -688,7 +716,7 @@ thuThap=pygame.image.load(r"TaiNguyen\anh\hienThiThuThap.png").convert_alpha()
     
 
 # set nhan vat KhungLong
-nv=khungLong(150, 390,False)
+nv=khungLong(-200, 390,False)
 khungLog= nv.nhanVat()
 khungLong_hcn= nv.nhanVat_hcn()
 
@@ -719,6 +747,8 @@ Thang=False
 bgThang=pygame.image.load(r"TaiNguyen\anh\Thang.png").convert()
 Thua=False
 bgThua=pygame.image.load(r"TaiNguyen\anh\Thua.png").convert()
+dauHang=False
+bgDauHang=pygame.image.load(r"TaiNguyen\anh\dauHang.png").convert()
 
 
 dangChoi=False
@@ -728,8 +758,13 @@ bgHuongDan=pygame.image.load(r"TaiNguyen\anh\huongDan.png").convert()
 
 nhacNen=pygame.mixer.Sound(r"TaiNguyen\amThanh\nhac.mp3")
 nhacVaCham=pygame.mixer.Sound(r"TaiNguyen\amThanh\vaCham.mp3")
+nhacVaCham.set_volume(0.5)
 nhacThang=pygame.mixer.Sound(r"TaiNguyen\amThanh\thang.mp3")
+nhacThang.set_volume(4)
 nhacThua=pygame.mixer.Sound(r"TaiNguyen\amThanh\thua.mp3")
+
+tangToc=pygame.mixer.Sound(r"TaiNguyen\amThanh\tangToc.mp3")
+giamToc=pygame.mixer.Sound(r"TaiNguyen\amThanh\giamToc.mp3")
 
 
 fi=open("diemHoangTu.txt","r")
@@ -749,6 +784,8 @@ phut=0
 giay=0
 ngoc=0
 dieuKien=0
+i=0
+
 
 anVang=pygame.mixer.Sound(r"TaiNguyen\amThanh\vang.wav")
 anMau=pygame.mixer.Sound(r"TaiNguyen\amThanh\hoiMau.mp3")
@@ -756,7 +793,8 @@ anNgoc=pygame.mixer.Sound(r"TaiNguyen\amThanh\ngoc.mp3")
 
 
 nhacNen.play(loops=-1) #nen
-nhacNen.set_volume(0.5)
+nhacNen.set_volume(0.3)
+
 while running:
     clock.tick(60)
     
@@ -800,12 +838,75 @@ while running:
                         manhinh.blit(click, toaDoChuot)
                         xemHuongDan=False
                         trangChu=True
+
+    if dauHang:
+        
+        manhinh.blit(bgDauHang, (0,0))
+        toaDoChuot=pygame.mouse.get_pos()
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                running = False
+            if event.type==pygame.MOUSEBUTTONDOWN:
+                if event.button==1:
+                    if 783<=toaDoChuot[0]<=987 and 470<=toaDoChuot[1]<=543:
+                        manhinh.blit(click, toaDoChuot)
+                        dangChoi=False
+                        phatAmThanh(nhacThua)
+                        Thua=True
+                        dauHang=False
+                    if 540<=toaDoChuot[0]<=745 and 470<=toaDoChuot[1]<=543:
+                        manhinh.blit(click, toaDoChuot)
+                        dangChoi=True
+                        dauHang=False
+                    if (toaDoChuot[0]-1014)**2+(toaDoChuot[1]-290)**2<=1600:
+                        manhinh.blit(click, toaDoChuot)
+                        dangChoi=True
+                        dauHang=False
+            if event.type==pygame.KEYDOWN:
+                if event.key== pygame.K_ESCAPE:
+                    manhinh.blit(click, toaDoChuot)
+                    dangChoi=True
+                    dauHang=False  
                     
             #even.buton =1trai; 3phai; 5cuon len; 4 cuon xuong
         
     if dangChoi:
-        a=1
+        chuyenMan+=1
         thoigian+=1
+        
+        tocDoCanh=tocDo[i]
+        if thoigian%1000==0:
+            if i<4:
+                i+=1
+        if(chuyenMan==5000):
+            thoatKhoi1=canhCuaThoat()
+            chuyenMan=0
+        
+        
+        
+        for v in dsVatP:
+            v_rect = v.nhanVat_hcn()
+            if kiemTraVaCham(hoangTu_rect, v_rect):
+                if v.getLoaiVP1()==0:#vang
+                    vang+=random.randint(100,500)
+                    v.goiNhac(anVang)
+                elif v.getLoaiVP1()==1:#mau
+                    nv9.setMau(random.randint(1,20))
+                    v.goiNhac(anMau)
+                elif v.getLoaiVP1()==2:#ngoc
+                    ngoc+=1
+                    v.goiNhac(anNgoc)
+                elif v.getLoaiVP1()==3:#tang toc
+                    if i<4:
+                        i+=1
+                    v.goiNhac(tangToc)
+                elif v.getLoaiVP1()==4:#giam toc
+                    if i>1:
+                        i-=1
+                    v.goiNhac(giamToc)
+                xoaVatPham(v)
+
+        a=1
         phut=int(thoigian/(60*60))
         giay=int(thoigian/60 -phut*60)
         if phut<10:
@@ -813,29 +914,25 @@ while running:
         if giay<10:
             giay="0"+str(giay)
         demKhungHinh+=1
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                fo.write(f'{phutI}{giayI}{vangNhieuI}')
-                running = False
-            nv9.tanCong(event)
-            nv9.HTVaCChuaDiChuyen(event)
+        
             
         # ảnh nền   
-        bg_x-=3
-        bg_x1-=3
+        bg_x-=tocDoCanh
+        bg_x1-=tocDoCanh
         manhinh.blit(bg, (bg_x, -290))
         manhinh.blit(bg1, (bg_x1,-290))
 
-
-        if(bg_x==-1920):
-            bg_x=1920
-        if(bg_x1==-1920 ):
-            bg_x1=1920
+        
+        if(bg_x<=-1918):
+            bg_x=1918
+        if(bg_x1<=-1918):
+            bg_x1=1918
+        
             
         if(truongHop1==False):
             dsThienThach.clear()
             if(demKhungHinh==20):
-                t=random.randint(1,100)
+                t=random.randint(1,tileVatCan)
                 goiTNTanCong(t)
             toanThachNhu()
         
@@ -843,7 +940,7 @@ while running:
         if(truongHop1==True):
             dsThachNhu.clear()
             if(demKhungHinh==20):
-                t=random.randint(1,80)
+                t=random.randint(1,tileVatCan)
                 goiTTTanCong(t)
             toanThienThach()
 
@@ -860,9 +957,7 @@ while running:
                 manhinh.blit(thoatKhoi.nhanVat(),thoatKhoi.nhanVat_hcn())
                 thoatKhoi.canhCuaDiChuyen()
 
-        chuyenMan+=1
-        if(chuyenMan%1000==0):
-            thoatKhoi1=canhCuaThoat()
+        
 
 
         if thoatKhoi1!=None and thoatKhoi1.getX()==False:
@@ -874,21 +969,33 @@ while running:
         if(truongHop1==False):
             if thoatKhoi1!=None:
                 if(kiemTraVaCham(nv9.nhanVat_hcn(),thoatKhoi1.nhanVat_hcn())):
+                    dsVatP.clear()
+                    nv.xoaToanBoLua()
+                    nv.setX(500)
                     truongHop1=True
                     bg=bg2
                     bg1=bg3
+                    bg_x=0
+                    bg_x1=1920
                     thoatKhoi1=None
+                    
         else:
             if thoatKhoi1!=None:
                 if(kiemTraVaCham(nv9.nhanVat_hcn(),thoatKhoi1.nhanVat_hcn())):
+                    dsVatP.clear()
+                    nv.setX(500)
+                    nv.xoaToanBoLua() 
                     truongHop1=False
                     bg=bg4
                     bg1=bg5
+                    bg_x=0
+                    bg_x1=1920
                     thoatKhoi1=None
+                    
                 
         
         if(demKhungHinh==20):
-            t1=random.randint(1,100)
+            t1=random.randint(1,tileVatCan)
             goiVatPham(t1)
         toanVatPham()
         nv.khungLongToaLua()
@@ -907,8 +1014,8 @@ while running:
             khungLog=nv.nhanVat()
             khungLong_hcn=nv.nhanVat_hcn()
             nv.khungLongDiChuyen()
-            
-            nv.tanCong()
+            if nv.getX()>=50:
+                nv.tanCong()
             hoangTu=nv9.nhanVat()
             hoangTu_hcn=nv9.nhanVat_hcn()
             demKhungHinh=0
@@ -1008,23 +1115,11 @@ while running:
                 
                 # Nếu có va chạm, tạo một vụ nổ
                  
-                goiVuNo(nv.getX(), nv.getY()) 
+                goiVuNo((nv.getX()+100), nv.getY()) 
                 nv9.xoaDan(dan)
                 nv.setMau(-3)
 
-        for v in dsVatP:
-            v_rect = v.nhanVat_hcn()
-            if kiemTraVaCham(hoangTu_rect, v_rect):
-                if v.getLoaiVP1()==0:#vang
-                    vang+=random.randint(100,500)
-                    v.goiNhac(anVang)
-                elif v.getLoaiVP1()==1:#mau
-                    nv9.setMau(random.randint(1,20))
-                    v.goiNhac(anMau)
-                elif v.getLoaiVP1()==2:#ngoc
-                    ngoc+=1
-                    v.goiNhac(anNgoc)
-                xoaVatPham(v)
+        
         # Cập nhật và vẽ vụ nổ
         toanVuNo()
 
@@ -1071,6 +1166,17 @@ while running:
             phatAmThanh(nhacThang)
             Thang=True
             dangChoi=False
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                fo.write(f'{phutI}{giayI}{vangNhieuI}')
+                running = False
+            nv9.tanCong(event)
+            nv9.HTVaCChuaDiChuyen(event)
+            if event.type==pygame.KEYDOWN:
+                if event.key== pygame.K_ESCAPE:
+                    dangChoi=False
+                    dauHang=True    
+            
 
     if Thua:
         manhinh.blit(bgThua, (0,0))
@@ -1098,7 +1204,8 @@ while running:
                         giay=0
                         phut=0
                         dieuKien=0
-                        
+                        tocDoCanh=2
+                        tileVatCan=100
                         dsThachNhu.clear()
                         dsThienThach.clear()
                         dsVatP.clear()
@@ -1136,6 +1243,8 @@ while running:
                         giay=0
                         phut=0
                         dieuKien=0
+                        tocDoCanh=2
+                        tileVatCan=100
                         dsThachNhu.clear()
                         dsThienThach.clear()
                         dsVatP.clear()
